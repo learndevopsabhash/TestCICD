@@ -82,25 +82,24 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.PROD_SERVER_SSH_KEY }}
       
-      - name: deploy to my ec2 and run the flask app
+      - name: Deploy to EC2
         run: |
-          ssh -o "strictHostKeyChecking=no" ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }} 
-            
-            docker --version
-            git --version
-            git clone https://github.com/learndevopsabhash/flask_Practice_abhash.git          
+           ssh -o StrictHostKeyChecking=no ${{ secrets.PROD_SERVER_USER }}@${{ secrets.PROD_SERVER_IP }} << EOF
+            cd /home/ubuntu
+            if [ ! -d flask_Practice_abhash ]; then
+                git clone https://github.com/learndevopsabhash/flask_Practice_abhash.git
+            fi
             cd flask_Practice_abhash
-            ls -ltra
-            cat > .env <<EOL
-            MONGO_URI=${{ secrets.MONGO_URI }}
-            SECRET_KEY=${{ secrets.SECRET_KEY }}
-            EOL
-            ls -ltra
-            
-      - name: Deploy to Staging Server
-        run: |
-          python -m venv .venv
-          source .venv/bin/activate
-          nohup python app.py &
-          sleep 5
-          curl -fsS http://localhost:5000
+            git pull origin main
+            echo "MONGO_URI=${{ secrets.MONGO_URI }}" > .env
+            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+            docker stop flask-app || true
+            docker rm flask-app || true
+            docker build -t flask-app .
+            docker run -d \
+                --name flask-app \
+                --restart always \
+                -p 5000:5000 \
+                --env-file .env \
+                flask-app
+            EOF
