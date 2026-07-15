@@ -96,10 +96,7 @@ jobs:
             sudo docker stop flask-app || true
             sudo docker rm flask-app || true
             sudo docker build -t flask-app .
-            sudo docker run -d \
-                --name flask-app \
-                --restart always \
-                -p 5000:5000 \
-                --env-file .env \
-                flask-app
-            EOF
+            sudo docker run -d --name flask-app --restart always -p 5000:5000 --env-file .env flask-app
+
+            
+           EOF
