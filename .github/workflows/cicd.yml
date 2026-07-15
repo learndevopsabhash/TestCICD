@@ -43,7 +43,6 @@ jobs:
           path: .venv
           include-hidden-files: true
           
-
   deploy-to-staging:
     if: github.ref == 'refs/heads/staging'
     needs: install-dependencies-and-test
