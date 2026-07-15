@@ -90,13 +90,16 @@ jobs:
             git --version
             git clone https://github.com/learndevopsabhash/flask_Practice_abhash.git          
             cd flask_Practice_abhash
+            ls -ltra
             cat > .env <<EOL
             MONGO_URI=${{ secrets.MONGO_URI }}
             SECRET_KEY=${{ secrets.SECRET_KEY }}
             EOL
+            ls -ltra
             
       - name: Deploy to Staging Server
         run: |
+          python -m venv .venv
           source .venv/bin/activate
           nohup python app.py &
           sleep 5
